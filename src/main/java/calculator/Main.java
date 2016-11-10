@@ -12,15 +12,23 @@ public final class Main {
 
     //final static Logger LOG = Logger.getLogger(Main.class);
 
-    String value = System.getProperty("verbosity", INFO);
+    private static String verbosity = System.getProperty("verbosity", INFO);
 
     public  static void main (String ... args) {
 
 
         if (args.length < 1 || args.length > 1) {
-            throw new IllegalArgumentException("did not provide an expresion");
+            throw new IllegalArgumentException("did not provide an expression");
         }
-        //LOG.info
+
+        switch (verbosity) {
+            case INFO:
+            case DEBUG:
+            case ERROR:
+            default:
+
+        }
+
         ExpressionTree calc;
         calc = new ExpressionTree(args[0]);
         System.out.println(calc.eval());
