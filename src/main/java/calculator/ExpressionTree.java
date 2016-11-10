@@ -3,6 +3,8 @@ package calculator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
+import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 /**
  * Created by hrcandidate on 09/11/16.
@@ -10,7 +12,7 @@ import java.util.Stack;
 public class ExpressionTree {
 
 
-  //final static Logger LOG = Logger.getLogger(ExpressionTree.class);
+   final static Logger LOG = Logger.getLogger(ExpressionTree.class);
 
     public enum Operator {
         ADD, DIV, MULT, SUB, LET,
@@ -71,7 +73,7 @@ public class ExpressionTree {
      * @return String[] with the three arguments
      */
 
-        public String[] getThreeNestedExpressions(String expr) {
+        public String[] getLetOperatorExpressions(String expr) {
             Stack<String> stack = new Stack<String>(); //will be used for fancy stuff later
             char[] exprArray = expr.toCharArray();
             String[] result = new String[3];
@@ -100,7 +102,7 @@ public class ExpressionTree {
      *
      * @return String[] with two arguments
      */
-        public String[] getTwoNestedExpressions(String expr) {
+        public String[] getArithmeticExpressions(String expr) {
 
             Stack<String> stack = new Stack<String>();
             char[] exprArray = expr.toCharArray();
@@ -156,11 +158,18 @@ public class ExpressionTree {
             //matches an Integer
             else {
                 try {
+                    Integer value =  Integer.valueOf(expr);
+                    if ( Integer.MAX_VALUE <= value || value <= Integer.MIN_VALUE)
+		    	throw new IllegalArgumentException("integer not between Integer.MIN_VALUE and MAX_VALUE");
+		   
                     node = new Node(Type.INTEGER, null, Integer.valueOf(expr), null);
                 } catch (NumberFormatException e) {
-                    System.out.println("invalid expression probably missing parenthesis or comma, invalid expression="+expr);
+                    LOG.error("invalid expression probably missing parenthesis or comma, invalid expression="+expr,e);
                     throw e;
-                }
+                } catch (IllegalArgumentException e) { 
+		    LOG.error(e.getMessage(),e);
+                    throw e;
+		}
             }
 
 
@@ -184,13 +193,13 @@ public class ExpressionTree {
             int skip = (op == Operator.MULT) ? 5 : 4;
 
             if (op == Operator.LET) { //handles special LET node
-                String[] threes = getThreeNestedExpressions(expr.substring(skip));
+                String[] threes = getLetOperatorExpressions(expr.substring(skip));
                 variables.put(threes[0], new ExpressionTree(threes[1],variables).eval());
                 node = parseExpression(threes[2]);
 
             } else {
                 node = new Node(Type.OPERATOR, op, 0, null);
-                String[] twos = getTwoNestedExpressions(expr.substring(skip));
+                String[] twos = getArithmeticExpressions(expr.substring(skip));
                 node.left = parseExpression(twos[0]);
                 node.right = parseExpression(twos[1]);
             }

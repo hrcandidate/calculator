@@ -1,7 +1,8 @@
 package calculator;
 import org.junit.*;
 import  static org.junit.Assert.*;
-
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 /**
  * Unit test for ExpressionTree
  */
@@ -9,8 +10,9 @@ public final class ExpressionTreeTest
 {
 
 
-  @Before
-  public void setupTest()  {
+  @BeforeClass
+  public static void setupClass()  {
+	BasicConfigurator.configure();
 
   }
 
@@ -88,6 +90,14 @@ public final class ExpressionTreeTest
   public void  expression_with_invalid_operator_should_throw_exceptoin()
   {
     ExpressionTree calc = new ExpressionTree ("let(a, let(b, 10, add(b, b)), surprise(b, 20, add(a, b)))");
+  }
+
+
+  @Test(expected=IllegalArgumentException.class)
+  public void  expression_with_integer_not_between_min_max_should_fail()
+  {
+    ExpressionTree calc = new ExpressionTree ("add(2147483647,1)");
+    calc = new ExpressionTree ("add(-2147483647,1)");
   }
 
 
