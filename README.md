@@ -20,3 +20,7 @@ java -jar target/calculator-1.0-SNAPSHOT.jar "add(1,2)"
 java -Dverbosity=ERROR -jar target/calculator-1.0-SNAPSHOT.jar "add(1,2)"
 ```
 
+
+Assumptions:
+- Avoided Main applications 
+- Can use logging library
