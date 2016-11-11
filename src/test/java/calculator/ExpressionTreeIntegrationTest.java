@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 /**
  * Unit test for ExpressionTree
  */
-public final class ExpressionTreeTest
+public final class ExpressionTreeIntegrationTest
 {
 
 

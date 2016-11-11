@@ -27,8 +27,37 @@ public class ExpressionTree {
     /* static modifier meant to help avoid inadvertent access to ExpressionTree info */
     public static class Node {
 
-        private Node left, right;  //subtrees
+        private Node left;
+
+        public Node getLeft() {
+            return left;
+        }
+
+        public Node getRight() {
+            return right;
+        }
+
+        public Node right;  //subtrees
+
+        public Operator getOp() {
+            return op;
+        }
+
         private Operator op; //set on only operators
+
+
+        public Type getType() {
+            return type;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public String getVar() {
+            return var;
+        }
+
         private Type type; //set on all nodes
         private int value; //only if an integer
         private String var; //only if a variable
@@ -40,6 +69,8 @@ public class ExpressionTree {
             this.value = value;
             this.var = var;
         }
+
+
 
     }
 
@@ -55,7 +86,7 @@ public class ExpressionTree {
     public ExpressionTree(String expr, Map<String,Integer> variables) {
             this.variables = variables;
             // removing spaces and uniforming case from express
-            this.root = parseExpression(expr.toUpperCase().replace(" ",""));
+            this.root = parseExpression(expr.replace(" ",""));
 
         }
 
@@ -125,10 +156,7 @@ public class ExpressionTree {
             }
 
             return result;
-
-
         }
-
 
 
     /**
@@ -141,12 +169,10 @@ public class ExpressionTree {
             Node node = null;
             Operator operator = null;
 
-
             validateString(expr);
 
-
             for (Operator op : Operator.values())
-                if (expr.startsWith(op.name()))
+                if (expr.toUpperCase().startsWith(op.name()))
                     operator = op;
 
             //matches an operator
@@ -154,15 +180,15 @@ public class ExpressionTree {
                 node = parseExpression(expr, operator);
             //matches a variable
             else if (expr.matches("[A-z]"))
-                node = new Node(Type.INTEGER, null, variables.get(expr), null);
+                node = getIntegerNode(variables.get(expr));
             //matches an Integer
             else {
                 try {
-                    Integer value =  Integer.valueOf(expr);
+                    Integer value = convertStringToInteger(expr);
                     if ( Integer.MAX_VALUE <= value || value <= Integer.MIN_VALUE)
 		    	throw new IllegalArgumentException("integer not between Integer.MIN_VALUE and MAX_VALUE");
 		   
-                    node = new Node(Type.INTEGER, null, Integer.valueOf(expr), null);
+                    node = getIntegerNode(value);
                 } catch (NumberFormatException e) {
                     LOG.error("invalid expression probably missing parenthesis or comma, invalid expression="+expr,e);
                     throw e;
@@ -176,7 +202,15 @@ public class ExpressionTree {
             return node;
         }
 
-    private void validateString(String expr) {
+    public Node getIntegerNode(Integer value) {
+        return new Node(Type.INTEGER, null, value, null);
+    }
+
+    public Integer convertStringToInteger(String expr) {
+        return Integer.valueOf(expr);
+    }
+
+    public void validateString(String expr) {
         if (expr == null)
             throw new IllegalArgumentException("expression provided incorrect");
     }
@@ -198,13 +232,18 @@ public class ExpressionTree {
                 node = parseExpression(threes[2]);
 
             } else {
-                node = new Node(Type.OPERATOR, op, 0, null);
+                node = getOperatorNode(op);
                 String[] twos = getArithmeticExpressions(expr.substring(skip));
                 node.left = parseExpression(twos[0]);
                 node.right = parseExpression(twos[1]);
             }
             return node;
         }
+
+    public Node getOperatorNode(Operator op) {
+        return new Node(Type.OPERATOR, op, 0, null);
+    }
+
 
 
 
@@ -217,9 +256,6 @@ public class ExpressionTree {
             //when evaluating start at root prefix operator
             return eval(root);
         }
-
-
-
 
 
     /**
@@ -235,16 +271,15 @@ public class ExpressionTree {
             int result = 0;
 
 
-            if (node.type == Type.INTEGER)
-                result = node.value;
-            else if (node.type == Type.VARIABLE)
-                result = variables.get(node.var);
+            if (node.getType() == Type.INTEGER)
+                result = node.getValue();
+
             else { //do math first
 
-                    int left = eval(node.left);
-                    int right = eval(node.right);
+                    int left = eval(node.getLeft());
+                    int right = eval(node.getRight());
 
-                    switch (node.op) {
+                    switch (node.getOp()) {
                         case ADD:
                             result = left + right;
                             break;
