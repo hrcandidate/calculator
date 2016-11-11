@@ -17,6 +17,9 @@ public final class ExpressionTreeTest
   }
 
 
+
+
+
   @Test
   public void expression_on_two_integers()
   {
@@ -24,9 +27,6 @@ public final class ExpressionTreeTest
     ExpressionTree calc = new ExpressionTree ("add(1,2)");
     assertTrue(calc.eval() == 3);
   }
-
-
-
 
 
   @Test
